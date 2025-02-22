@@ -1,48 +1,5 @@
-DROP database streaming_app_db;
+USE VIDEO_REST_API;
 
-CREATE DATABASE streaming_app_db;
-
-USE streaming_app_db;
-
-CREATE TABLE `USUARIO` (
-    `ID` bigint NOT NULL AUTO_INCREMENT,
-    `EMAIL` varchar(255) NOT NULL UNIQUE,
-    `NOME` varchar(255) NOT NULL,
-    `SENHA` varchar(255) NOT NULL,
-    PRIMARY KEY (`ID`)
-);
-
-
-CREATE TABLE `VIDEO` (
-`ID` bigint NOT NULL AUTO_INCREMENT,
-`CATEGORIA` enum('BACKEND','DATA_SCIENCE','DESIGN','DEVOPS','FRONTEND','FULLSTACK','IA','MACHINE_LEARNING','PROGRAMACAO','SEGURANCA','TESTES','UI','UX') NOT NULL,
-`DESCRICAO` varchar(500) DEFAULT NULL,
-`TITULO` varchar(255) NOT NULL,
-`URL` varchar(255) NOT NULL,
-`USUARIO_ID` bigint NOT NULL,
-PRIMARY KEY (`ID`),
-FOREIGN KEY (`USUARIO_ID`) REFERENCES `USUARIO` (`ID`) ON DELETE CASCADE
-);
-
-CREATE TABLE `COMENTARIO` (
-    `ID` bigint NOT NULL AUTO_INCREMENT,
-    `PERGUNTA` varchar(255) DEFAULT NULL,
-    `USUARIO_ID` bigint NOT NULL,
-    `VIDEO_ID` bigint NOT NULL,
-    PRIMARY KEY (`ID`),
-    FOREIGN KEY (`VIDEO_ID`) REFERENCES `VIDEO` (`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`USUARIO_ID`) REFERENCES `USUARIO` (`ID`) ON DELETE CASCADE
-);
-
-
-CREATE TABLE `CURTIDAS` (
-    `ID` bigint NOT NULL AUTO_INCREMENT,
-    `USUARIO_ID` bigint NOT NULL,
-    `VIDEO_ID` bigint NOT NULL,
-    PRIMARY KEY (`ID`),
-    FOREIGN KEY (`VIDEO_ID`) REFERENCES `VIDEO` (`ID`) ON DELETE CASCADE,
-    FOREIGN KEY (`USUARIO_ID`) REFERENCES `USUARIO` (`ID`) ON DELETE CASCADE
-);
 
 INSERT INTO USUARIO (EMAIL, NOME, SENHA) VALUES
 ('user1@example.com', 'João Silva', 'senha123'),
@@ -54,8 +11,12 @@ INSERT INTO USUARIO (EMAIL, NOME, SENHA) VALUES
 ('user7@example.com', 'Ricardo Santos', 'senha404'),
 ('user8@example.com', 'Ana Souza', 'senha505'),
 ('user9@example.com', 'Paulo Oliveira', 'senha606'),
-('user10@example.com', 'Juliana Costa', 'senha707');
+('user10@example.com', 'Juliana Costa', 'senha707'),
+('msb2', 'Miguel Batista', '123');
 
+
+INSERT INTO PERMISSOES(USUARIO_ID, PERMISSAO) VALUES
+((SELECT ID FROM USUARIO WHERE EMAIL='msb2'), 'ADMIN');
 
 INSERT INTO VIDEO (CATEGORIA, DESCRICAO, TITULO, URL, USUARIO_ID) VALUES
 ('BACKEND', 'Curso básico de Backend com Java.', 'Backend com Java', 'https://example.com/backend-java', 1),

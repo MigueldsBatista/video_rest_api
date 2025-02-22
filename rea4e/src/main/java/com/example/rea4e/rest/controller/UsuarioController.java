@@ -47,7 +47,6 @@ public class UsuarioController {
     }
     // Achar um usuário pelo id
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
         Usuario usuario = usr.buscarPorId(id);
         UsuarioDTO usuarioDTO = userMapper.toDTO(usuario);
@@ -57,7 +56,6 @@ public class UsuarioController {
     // Criar um usuário
     @PostMapping
     public ResponseEntity<UsuarioDTO> salvar(@RequestBody UsuarioDTO usuarioDTO) {
-
 
         Usuario usuario = userMapper.toUsuario(usuarioDTO);
         Usuario saved = usr.salvar(usuario);

@@ -8,14 +8,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.example.rea4e.domain.entity.Usuario;
 import com.example.rea4e.domain.service.UsuarioService;
 
-import lombok.RequiredArgsConstructor;
 
 
-
-@RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
 
     private final UsuarioService usr;
+
+    public CustomUserDetailService(UsuarioService usr){
+        this.usr=usr;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 
 @Transactional
 @Service
-public class VideoServiceImpl extends BaseService<Video> implements VideoService {
+public class VideoServiceImpl extends BaseService<Video, Long> implements VideoService {
     private final UsuarioService usuarioService;
     private final VideoRepository reaRepositorio;
 

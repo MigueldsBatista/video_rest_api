@@ -2,7 +2,11 @@ package com.example.rea4e.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,78 +43,69 @@ import lombok.RequiredArgsConstructor;
  */
 
 
-@Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
-@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
-public class SecurityConfiguration {
+ @Configuration
+ @EnableWebSecurity
+ @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+ public class SecurityConfiguration {
+ 
+     private final LoginSocialSuccessHandler socialHandler;
 
-    private final LoginSocialSuccessHandler socialHandler;
-    @Bean//Estamos sobrescrevendo o padrao do Spring Security
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-        .csrf(AbstractHttpConfigurer::disable)
-        .httpBasic(Customizer.withDefaults())
-        .formLogin(configurer ->{
-            configurer.loginPage("/login");
-        })
-        // .formLogin(Customizer.withDefaults())
-        .authorizeHttpRequests(authorizer -> {
-            authorizer.requestMatchers("/login").permitAll();
-            authorizer.requestMatchers(HttpMethod.POST, "api/usuario/**").permitAll();
-            authorizer.anyRequest().authenticated();
+        public SecurityConfiguration(@Lazy LoginSocialSuccessHandler socialHandler) {
+            this.socialHandler = socialHandler;
+        }
+ 
+     @Bean
+     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+         return http
+             .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF (opcional para APIs REST)
+             .httpBasic(Customizer.withDefaults()) // Habilita autenticação básica (opcional)
+             .formLogin(configurer -> {
+                 configurer
+                     .loginPage("/login") // Página de login personalizada
+                     .defaultSuccessUrl("/") // Redireciona para a página inicial após o login bem-sucedido
+                     .failureUrl("/login?error=true"); // Redireciona para "/login" com um parâmetro de erro em caso de falha
+             })
+             .authorizeHttpRequests(authorizer -> {
+                 authorizer
+                     .requestMatchers("/login").permitAll() // Permite acesso à página de login
+                     .requestMatchers(HttpMethod.POST, "api/usuario/**").permitAll() // Permite cadastro de usuários
+                     .anyRequest().authenticated(); // Todas as outras requisições exigem autenticação
+             })
+             .oauth2Login(oauth2 -> {
+                 oauth2
+                     .loginPage("/login") // Página de login personalizada
+                     .successHandler(socialHandler); // Handler para redirecionamento após o login social
+             })
+             .build();
+     }
+ 
+     @Bean
+     PasswordEncoder passwordEncoder() {
+         return new BCryptPasswordEncoder(10); // Configura o BCryptPasswordEncoder com força 10
+     }
+ 
+     @Bean
+     UserDetailsService userDetailsService(UsuarioService usr) {
+         return new CustomUserDetailService(usr); // Configura o UserDetailsService personalizado
+     }
+ 
 
-
-        })//Vamos autorizar todas as requisições
-        .oauth2Login(oauth2 -> {
-            oauth2
-            .loginPage("/login")
-            .successHandler(socialHandler);
-        })
-        .build();
-
-        //Desse modo é igual o padrao da biblioteca 
-    }
-
-    //Com o bcrypt o hash é gerado de forma aleatória, nao é possivel fazer um
-    //traceback, pra fazer o match o encoder verifica se é possivel gerar o mesmo hash a partir daquela senha
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-
-    public UserDetailsService userDetailsService(UsuarioService usr){
-        return new CustomUserDetailService(usr);
-    }
-
-    // @Bean
-    // public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder encoder) {
-    //     DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    //     provider.setUserDetailsService(userDetailsService);
-    //     provider.setPasswordEncoder(encoder);
-    //     return provider;
-    // }
-    //Por algum motivo quando eu escrevi esse código, rodei e depois comentei ele  continuou funcionando
-
-    @Bean WebSecurityCustomizer webSecurityCustomizer(){
-        return (web) -> {
-            web.ignoring().requestMatchers(
-                "/v2/api-docs/**",
-                            "/v3/api-docs/**",
-                            "/swagger-resources/**",
-                            "/swagger-ui/**",
-                            "/swagger-ui.html",
-                            "/webjars/**"
-
-            );
-        };
-    }
-
-
-    @Bean
-    public GrantedAuthorityDefaults grantedAuthorityDefaults(){
-        return new GrantedAuthorityDefaults("");//vai eliminar o uso do role
-    }
-
-
-}
+     @Bean
+     WebSecurityCustomizer webSecurityCustomizer() {
+         return (web) -> {
+             web.ignoring().requestMatchers(
+                 "/v2/api-docs/**",
+                 "/v3/api-docs/**",
+                 "/swagger-resources/**",
+                 "/swagger-ui/**",
+                 "/swagger-ui.html",
+                 "/webjars/**"
+             );
+         };
+     }
+ 
+     @Bean
+     GrantedAuthorityDefaults grantedAuthorityDefaults() {
+         return new GrantedAuthorityDefaults(""); // Remove o prefixo "ROLE_" das roles
+     }
+ }

@@ -35,6 +35,9 @@
             </div>
             <button class="w-100 btn btn-lg btn-primary" type="submit">Entrar</button>
             <p class="mt-5 mb-3 text-muted text-center">&copy; 2025</p>
+            <div th:if="${param.error}" style="color: red;">
+                Email ou senha inválidos.
+            </div>
         </form>
         <a th:href="@{/oauth2/authorization/google}">Google</a>
         <a th:href="@{/logout}">Sair</a>

@@ -57,7 +57,7 @@ public class Usuario {
     )
     private List<Video> videosFavoritos = new ArrayList<>(); // Inicializando
     
-    
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "PERMISSOES",
@@ -73,6 +73,8 @@ public class Usuario {
         this.senha = password;
         this.nome = name;
     }
+
+    
 
     
 }

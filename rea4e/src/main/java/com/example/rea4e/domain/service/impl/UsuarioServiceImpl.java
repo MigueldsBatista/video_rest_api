@@ -1,5 +1,7 @@
 package com.example.rea4e.domain.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +14,23 @@ import com.example.rea4e.domain.service.UsuarioService;
 import com.example.rea4e.security.SecurityService;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Transactional
 @Service
-@RequiredArgsConstructor
-public class UsuarioServiceImpl extends BaseService<Usuario> implements UsuarioService {
+public class UsuarioServiceImpl extends BaseService<Usuario, Long> implements UsuarioService {
     
     private final UsuarioEventPublisher eventPublisher;
     private final UsuarioRepository repositorio;
     private final SecurityService sec;
     private final PasswordEncoder encoder;
+
+    public UsuarioServiceImpl(UsuarioRepository repositorio, UsuarioEventPublisher eventPublisher, SecurityService sec, PasswordEncoder encoder) {
+        this.repositorio = repositorio;
+        this.eventPublisher = eventPublisher;
+        this.sec = sec;
+        this.encoder = encoder;
+    }
+    
     
     public void favoritarVideo(Long usuarioId, Long videoId){
         eventPublisher.publishvideoFavoritado(usuarioId, videoId);
@@ -56,6 +64,7 @@ public class UsuarioServiceImpl extends BaseService<Usuario> implements UsuarioS
         if(obterUsuarioPorEmail(usuario.getEmail())!=null){
             throw new DuplicateException("Ja existe um usuário com esse email!");
         }
+
         Usuario usuarioLogado = sec.obterUsuarioLogado();
 
         if(usuarioLogado!=null && isUserSaved(usuario)==false){

@@ -10,17 +10,17 @@ import org.springframework.util.Assert;
 import java.util.List;
 
 @Service
-public abstract class BaseService<T> {
+public abstract class BaseService<T, ID> {//ID apenas uma indicação generica do tipo do ID
 
     @Autowired
-    protected JpaRepository<T, Long> repositorio;
+    protected JpaRepository<T, ID> repositorio;
 
     public List<T> listar() {
         return repositorio.findAll();
     }
 
 
-    public T buscarPorId(Long id) {
+    public T buscarPorId(ID id) {
         Assert.notNull(id, "ID não pode ser nulo");
         return repositorio.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Entidade não encontrada com ID: " + id));
@@ -31,14 +31,9 @@ public abstract class BaseService<T> {
         return repositorio.save(entity);
     }
 
-    public void deletar(Long id) {
+    public void deletar(ID id) {
         Assert.notNull(id, "ID não pode ser nulo");
         T entity = buscarPorId(id);
-        this.deletar(entity);
-    }
-
-    public void deletar(T entity) {
-        Assert.notNull(entity, "Entidade não pode ser nula");
         repositorio.delete(entity);
     }
 

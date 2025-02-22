@@ -9,11 +9,11 @@ import com.example.rea4e.domain.entity.Video;
 import com.example.rea4e.domain.repository.ComentarioRepository;
 import com.example.rea4e.domain.service.BaseService;
 import com.example.rea4e.domain.service.ComentarioService;
-
 import jakarta.transaction.Transactional;
+
 @Transactional
 @Service
-public class ComentarioServiceImpl extends BaseService<Comentario> implements ComentarioService{
+public class ComentarioServiceImpl extends BaseService<Comentario, Long> implements ComentarioService{
 private final ComentarioRepository comentarioRepository;
 
     public ComentarioServiceImpl(ComentarioRepository comentarioRepository) {
