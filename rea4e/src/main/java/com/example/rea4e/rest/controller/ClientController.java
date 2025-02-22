@@ -9,9 +9,9 @@ import com.example.rea4e.domain.service.ClientService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 
 @RestController
@@ -22,6 +22,7 @@ public class ClientController {
     private final ClientService service;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Client> salvar(@RequestBody Client entity) {
         service.salvar(entity);
         return ResponseEntity.ok(entity);

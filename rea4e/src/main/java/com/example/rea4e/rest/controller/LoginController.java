@@ -62,4 +62,10 @@ public class LoginController {
     public String homePage() {
         return "Bem vindo! " + securityService.obterUsuarioLogado().getEmail(); // Retorna a página inicial (home.html)
     }
+
+    @GetMapping("/authorized")
+    public String getAuthorizationCode(@RequestParam("code") String code) {
+        return "Seu authorization code: "+code; 
+    }
+    
 }

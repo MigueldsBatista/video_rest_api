@@ -9,7 +9,6 @@ import com.example.rea4e.domain.entity.Usuario;
 import com.example.rea4e.domain.service.UsuarioService;
 
 
-
 public class CustomUserDetailService implements UserDetailsService {
 
     private final UsuarioService usr;

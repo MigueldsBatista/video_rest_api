@@ -2,6 +2,7 @@ package com.example.rea4e.domain.service.impl;
 
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.rea4e.domain.entity.Client;
@@ -16,15 +17,22 @@ import jakarta.transaction.Transactional;
 public class ClientServiceImpl extends BaseService<Client, UUID> implements ClientService{
 
     private final ClientRepository clientRepository;
-    
-    public ClientServiceImpl(ClientRepository clientRepository){
+    private final PasswordEncoder passwordEncoder;
+    public ClientServiceImpl(ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
         this.clientRepository=clientRepository;
+        this.passwordEncoder=passwordEncoder;
     }
 
     @Override
     public Client buscarPorClientId(String clientId) {
-        
         return clientRepository.findByClientId(clientId);
         
+    }
+
+    @Override
+    public Client salvar(Client entity) {
+        String encoded = passwordEncoder.encode(entity.getClientSecret());
+        entity.setClientSecret(encoded);
+        return super.salvar(entity);
     }
 }

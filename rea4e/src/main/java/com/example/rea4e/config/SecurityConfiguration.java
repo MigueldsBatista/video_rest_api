@@ -1,5 +1,8 @@
 package com.example.rea4e.config;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -14,18 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.example.rea4e.domain.service.UsuarioService;
-import com.example.rea4e.security.CustomUserDetailService;
+
+import com.example.rea4e.security.JwtCustomAuthenticationFilter;
 import com.example.rea4e.security.LoginSocialSuccessHandler;
-
-import lombok.RequiredArgsConstructor;
-
-//para interagir com mysql eu uso
 
 /*
 
@@ -55,7 +54,7 @@ import lombok.RequiredArgsConstructor;
         }
  
      @Bean
-     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtCustomAuthenticationFilter jwtCustomAuthenticationFilter) throws Exception {
          return http
              .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF (opcional para APIs REST)
              .httpBasic(Customizer.withDefaults()) // Habilita autenticação básica (opcional)
@@ -67,7 +66,7 @@ import lombok.RequiredArgsConstructor;
              })
              .authorizeHttpRequests(authorizer -> {
                  authorizer
-                     .requestMatchers("/login").permitAll() // Permite acesso à página de login
+                     .requestMatchers("/login/**").permitAll() // Permite acesso à página de login
                      .requestMatchers(HttpMethod.POST, "api/usuario/**").permitAll() // Permite cadastro de usuários
                      .anyRequest().authenticated(); // Todas as outras requisições exigem autenticação
              })
@@ -76,18 +75,16 @@ import lombok.RequiredArgsConstructor;
                      .loginPage("/login") // Página de login personalizada
                      .successHandler(socialHandler); // Handler para redirecionamento após o login social
              })
+             .oauth2ResourceServer(oauth2Rs-> oauth2Rs.jwt(Customizer.withDefaults()))
+             .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter.class)
              .build();
      }
+
  
-     @Bean
-     PasswordEncoder passwordEncoder() {
-         return new BCryptPasswordEncoder(10); // Configura o BCryptPasswordEncoder com força 10
-     }
- 
-     @Bean
-     UserDetailsService userDetailsService(UsuarioService usr) {
-         return new CustomUserDetailService(usr); // Configura o UserDetailsService personalizado
-     }
+    //  @Bean
+    //  UserDetailsService userDetailsService(UsuarioService usr) {
+    //      return new CustomUserDetailService(usr); // Configura o UserDetailsService personalizado
+    //  }
  
 
      @Bean
@@ -108,4 +105,18 @@ import lombok.RequiredArgsConstructor;
      GrantedAuthorityDefaults grantedAuthorityDefaults() {
          return new GrantedAuthorityDefaults(""); // Remove o prefixo "ROLE_" das roles
      }
+
+    // CONFIGURA, NO TOKEN JWT, O PREFIXO SCOPE
+     @Bean
+     public JwtAuthenticationConverter jwtAuthenticationConverter(){
+         var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+         authoritiesConverter.setAuthorityPrefix("");
+ 
+         var converter = new JwtAuthenticationConverter();
+         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+ 
+         return converter;
+     }
+
+
  }

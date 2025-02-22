@@ -7,16 +7,21 @@ https://docs.spring.io/spring-authorization-server/reference/core-model-componen
 Componentes
 
 Registered Client - Representa um cliente OAuth 2.0 registrado no Authorization Server.
-- clientId *
-- clientSecret *
+
+- clientId \*
+- clientSecret \*
 - clientAuthenticationMethods
 - authorizationGrantTypes
-- redirectUris *
-- scopes *
+- redirectUris \*
+- scopes \*
 - clientSettings
 
-Campos com * são obrigatórios.
+Campos com \* são obrigatórios.
 
 Registered Client Repository - Interface para armazenar e recuperar RegisteredClient.
 
 Registered Client Service - Interface para gerenciar RegisteredClient.
+
+Resource Server - Um servidor que hospeda recursos protegidos por um Authorization Server.
+
+

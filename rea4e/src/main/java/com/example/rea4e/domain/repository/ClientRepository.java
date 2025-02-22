@@ -17,6 +17,6 @@ public interface ClientRepository extends JpaRepository<Client, UUID>{
     //count
     //existsById
     
-    @Query(value="SELECT * FROM CLIENT WHERE CLIENT_SECRET=:clientId", nativeQuery = true)
+    @Query(value="SELECT * FROM CLIENT WHERE CLIENT_ID=:clientId", nativeQuery = true)
     Client findByClientId(String clientId);
 }
