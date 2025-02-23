@@ -16,6 +16,13 @@ import com.example.rea4e.domain.service.UsuarioService;
 import com.example.rea4e.security.CustomAuthentication;
 import com.example.rea4e.security.SecurityService;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Autenticação", description = "Endpoints para gerenciamento de login")
 @Controller
 public class LoginController {
 
@@ -28,42 +35,44 @@ public class LoginController {
         this.securityService = securityService;
         this.usuarioService = usuarioService;
     }
-
+    @Hidden
     @GetMapping("/login")
     public String loginPage() {
         return "login"; // Retorna a página de login (login.html)
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Autenticar usuário")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "302", description = "Redirecionamento para a página inicial após login bem-sucedido"),
+        @ApiResponse(responseCode = "302", description = "Redirecionamento para a página de login com erro em caso de falha")
+    })
     public String login(@RequestParam String username, @RequestParam String password) {
         try {
-            // Cria um token de autenticação com as credenciais fornecidas
             authenticationProvider.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)//Uma das implementações do Authentication
+                new UsernamePasswordAuthenticationToken(username, password)
             );
 
-            // Define a autenticação no contexto de segurança
             Usuario usuario = usuarioService.obterUsuarioPorEmail(username);
-
             CustomAuthentication customAuth = new CustomAuthentication(usuario);
-
             SecurityContextHolder.getContext().setAuthentication(customAuth);
 
-            // Redireciona para a página inicial após o login bem-sucedido
             return "redirect:/";
         } catch (Exception e) {
-            // Em caso de falha, redireciona de volta para a página de login com um parâmetro de erro
             return "redirect:/login?error=true";
         }
     }
 
+    @Hidden
     @GetMapping("/")
     @ResponseBody
     public String homePage() {
         return "Bem vindo! " + securityService.obterUsuarioLogado().getEmail(); // Retorna a página inicial (home.html)
     }
 
+    @Hidden
     @GetMapping("/authorized")
+    @ResponseBody
     public String getAuthorizationCode(@RequestParam("code") String code) {
         return "Seu authorization code: "+code; 
     }

@@ -17,4 +17,5 @@ List<Video> findByAutor(Long autorId);
 
 @Query(value = "SELECT * FROM VIDEO WHERE CATEGORIA = :categoria", nativeQuery = true)
 List<Video> findByCategoria(String categoria);//Por meio da assinatura do método, o Spring Data JPA entende que a consulta deve ser feita com base no atributo categoria da entidade Video.
+
 }

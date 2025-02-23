@@ -123,7 +123,7 @@ public class AuthorizationServerConfiguration {
         //revogar
         .tokenRevocationEndpoint("/oauth2/revoke")
         //autorizar
-        .authorizationEndpoint("oauth2/authorize")
+        .authorizationEndpoint("/oauth2/authorize")
         //TODO
         .oidcUserInfoEndpoint("/oauth2/userinfo")
         //obter a chave publica pra verificar a assinatura do token

@@ -19,10 +19,12 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Set;
 
+import io.swagger.v3.oas.annotations.Hidden;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
+@Hidden
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

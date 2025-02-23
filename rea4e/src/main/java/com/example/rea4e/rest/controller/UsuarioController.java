@@ -5,18 +5,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.example.rea4e.domain.entity.Usuario;
 import com.example.rea4e.domain.entity.Video;
 import com.example.rea4e.domain.service.UsuarioService;
@@ -25,45 +14,55 @@ import com.example.rea4e.rest.dto.VideoDTO;
 import com.example.rea4e.rest.mapper.UsuarioMapper;
 import com.example.rea4e.rest.mapper.VideoMapper;
 import com.example.rea4e.security.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
 
 
-@RestController//RestController vai anotar os metodos com @ResponseBody que indica o retorno em JSON
-@RequestMapping("/api/usuario")//RequestMapping vai mapear a URL
+@Tag(name = "Usuário", description = "Endpoints responsáveis pelas operações com usuários")
+@RestController
+@RequestMapping("/api/usuario")
 public class UsuarioController {
     private UsuarioService usr;
     private UsuarioMapper userMapper;
     private VideoMapper videoMapper;
+
     public UsuarioController(UsuarioService usr, UsuarioMapper mapper, VideoMapper videoMapper) {
         this.usr = usr;
         this.userMapper = mapper;
         this.videoMapper = videoMapper;
     }
 
+    @Operation(summary = "Obter usuário logado", description = "Retorna os detalhes do usuário autenticado")
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<UsuarioDTO> obterUsuarioLogado(SecurityService sec) {
-
         return ResponseEntity.ok(userMapper.toDTO(sec.obterUsuarioLogado()));
     }
-    // Achar um usuário pelo id
+
+    @Operation(summary = "Buscar usuário por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+        @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioDTO> buscarPorId(@Parameter(description = "ID do usuário", required = true) @PathVariable Long id) {
         Usuario usuario = usr.buscarPorId(id);
-        UsuarioDTO usuarioDTO = userMapper.toDTO(usuario);
-        return ResponseEntity.ok(usuarioDTO);
+        return ResponseEntity.ok(userMapper.toDTO(usuario));
     }
 
-    // Criar um usuário
+    @Operation(summary = "Criar um novo usuário")
+    @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso")
     @PostMapping
     public ResponseEntity<UsuarioDTO> salvar(@RequestBody UsuarioDTO usuarioDTO) {
-
         Usuario usuario = userMapper.toUsuario(usuarioDTO);
-        Usuario saved = usr.salvar(usuario);
-        UsuarioDTO savedDTO = userMapper.toDTO(saved);
-        return new ResponseEntity<>(savedDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(userMapper.toDTO(usr.salvar(usuario)), HttpStatus.CREATED);
     }
 
-    // Deletar um usuário
+    @Operation(summary = "Deletar um usuário", description = "Remove um usuário pelo ID")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
@@ -71,67 +70,64 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    // Favoritar uma aula
+    @Operation(summary = "Favoritar um vídeo")
     @PostMapping("/{usuarioId}/favoritar/{videoId}")
-    @PreAuthorize("hasAnyRole('ADMIN, USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Void> favoritarAula(@PathVariable Long usuarioId, @PathVariable Long videoId) {
         usr.favoritarVideo(usuarioId, videoId);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Listar vídeos favoritos do usuário")
     @GetMapping("/{usuarioId}/favoritos")
-    @PreAuthorize("hasAnyRole('ADMIN, USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<List<VideoDTO>> listarFavoritos(@PathVariable Long usuarioId) {
         Usuario usuario = usr.buscarPorId(usuarioId);
-        List<Video> favoritos = usuario.getVideosFavoritos();
-        return ResponseEntity.ok(videoMapper.toDTOList(favoritos));
+        return ResponseEntity.ok(videoMapper.toDTOList(usuario.getVideosFavoritos()));
     }
-    
-    // Desfavoritar uma aula
+
+    @Operation(summary = "Desfavoritar um vídeo")
     @DeleteMapping("/{usuarioId}/favoritar/{videoId}")
-    @PreAuthorize("hasAnyRole('ADMIN, USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Void> desfavoritarAula(@PathVariable Long usuarioId, @PathVariable Long videoId) {
         usr.desfavoritarVideo(usuarioId, videoId);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Atualizar dados do usuário")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN, USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<UsuarioDTO> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         usuario.setId(id);
         return ResponseEntity.ok(userMapper.toDTO(usr.salvar(usuario)));
     }
 
+    @Operation(summary = "Adicionar permissão a um usuário")
     @PostMapping("/{usuarioId}/permissao")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDTO> adicionarPermissao(@PathVariable Long usuarioId, @RequestBody String permissaoAdicionada) {
-        Usuario usuario = usr.buscarPorId(usuarioId);
         usr.adicionarPermissaoUsuario(usuarioId, permissaoAdicionada);
-        UsuarioDTO responseUsr = userMapper.toDTO(usuario);
-        return ResponseEntity.ok(responseUsr);
+        return ResponseEntity.ok(userMapper.toDTO(usr.buscarPorId(usuarioId)));
     }
 
+    @Operation(summary = "Remover permissão de um usuário")
     @DeleteMapping("/{usuarioId}/permissao")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> removerPermissao(@PathVariable Long usuarioId, @RequestBody String permissaoRemovida){
+    public ResponseEntity<Void> removerPermissao(@PathVariable Long usuarioId, @RequestBody String permissaoRemovida) {
         usr.removerPermissaoUsuario(usuarioId, permissaoRemovida);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Obter permissões do usuário")
     @GetMapping("/{usuarioId}/permissao")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Set<String>> obterPermissoes(@PathVariable Long usuarioId){
-        Usuario usuario = usr.buscarPorId(usuarioId);
-        return ResponseEntity.ok(usuario.getPermissoes());
-
+    public ResponseEntity<Set<String>> obterPermissoes(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(usr.buscarPorId(usuarioId).getPermissoes());
     }
 
+    @Operation(summary = "Verificar disponibilidade de email")
     @GetMapping("/email")
-    public ResponseEntity<Boolean> verificarEmail(@RequestBody String email){
-        Usuario usuario = usr.obterUsuarioPorEmail(email);
-        if(usuario == null){
-            return ResponseEntity.ok(true);
-        }
-        return ResponseEntity.ok(false);
+    public ResponseEntity<Boolean> verificarEmail(@RequestBody String email) {
+        return ResponseEntity.ok(usr.obterUsuarioPorEmail(email) == null);
     }
 }
