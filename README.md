@@ -1,58 +1,58 @@
-# 📽️ Aplicativo de Vídeos
+# 📽️ Video Application
 
-Bem-vindo ao **Aplicativo de Vídeos**! 🎬📲 Uma plataforma onde usuários podem assistir vídeos, interagir por meio de comentários e organizar seus conteúdos favoritos. Desenvolvido com **Spring Boot**, segurança integrada e uma API bem estruturada.
-
----
-
-## 🚀 Funcionalidades Principais
-
-- 🔹 **Gerenciamento de Vídeos**: Upload, listagem e exclusão de vídeos.
-- 💬 **Comentários em Vídeos**: Usuários podem comentar e interagir.
-- 👤 **Sistema de Usuários**: Cadastro, autenticação e gestão de favoritos.
-- 🔒 **Segurança com Spring Security**: Autenticação e autorização baseadas em funções.
-- ⭐ **Favoritar Vídeos**: Salve seus vídeos favoritos para fácil acesso.
+Welcome to the **Video Application**! 🎬📲 A platform where users can watch videos, interact through comments, and organize their favorite content. Developed with **Spring Boot**, integrated security, and a well-structured API.
 
 ---
 
-## 📂 Arquitetura do Projeto
+## 🚀 Main Features
 
-Este projeto segue uma **arquitetura em camadas**, garantindo separação de responsabilidades:
+- 🔹 **Video Management**: Upload, listing, and deletion of videos.
+- 💬 **Video Comments**: Users can comment and interact.
+- 👤 **User System**: Registration, authentication, and favorites management.
+- 🔒 **Security with Spring Security**: Role-based authentication and authorization.
+- ⭐ **Favorite Videos**: Save your favorite videos for easy access.
 
-## 📂 Estrutura de Pastas do Projeto
+---
 
-A organização do repositório segue uma estrutura clara para facilitar manutenção, escalabilidade e compreensão do fluxo do sistema:
+## 📂 Project Architecture
+
+This project follows a **layered architecture**, ensuring separation of concerns:
+
+## 📂 Project Folder Structure
+
+The repository organization follows a clear structure to facilitate maintenance, scalability, and understanding of the system flow:
 
 ```
 📂 .../
- ├── 📂 controller/     # Controladores REST responsáveis por expor os endpoints
- ├── 📂 service/        # Serviços com as regras de negócio e lógica da aplicação
- ├── 📂 repository/     # Interfaces para comunicação com o banco de dados
- ├── 📂 dto/            # Objetos de transferência de dados (DTOs)
- ├── 📂 security/       # Configurações e classes relacionadas à segurança
+ ├── 📂 controller/     # REST Controllers responsible for exposing endpoints
+ ├── 📂 service/        # Services with business rules and application logic
+ ├── 📂 repository/     # Interfaces for database communication
+ ├── 📂 dto/            # Data Transfer Objects (DTOs)
+ ├── 📂 security/       # Security-related configurations and classes
 ```
 
-Essa estrutura modular permite que cada camada seja desenvolvida e testada de forma independente, promovendo a clareza e organização do código.
+This modular structure allows each layer to be developed and tested independently, promoting code clarity and organization.
 
-### 🔍 Diagrama da Arquitetura
+### 🔍 Architecture Diagram
 
-Abaixo está um esquema simplificado da arquitetura em camadas do sistema:
+Below is a simplified schematic of the system's layered architecture:
 
 <img src="rea4e/media/layers_overview.png"  width="70%" style="margin: 20px 0"/>
 
 
 ---
 
-## 🔐 Segurança e Autenticação
+## 🔐 Security and Authentication
 
-A segurança é gerenciada com **Spring Security**, utilizando autenticação JWT.
+Security is managed with **Spring Security**, using JWT authentication.
 
 <img src="rea4e/media/security.png" width="70%" style="margin: 20px 0"/>
 
-**Perfis de usuários:**
-- 🛡️ **Admin**: Acesso total ao sistema.
-- 👤 **Usuário comum**: Pode assistir, comentar e favoritar vídeos.
+**User Profiles:**
+- 🛡️ **Admin**: Full system access.
+- 👤 **Standard User**: Can watch, comment on, and favorite videos.
 
-### 🔒 Code sample - Configuração de Segurança
+### 🔒 Code sample - Security Configuration
 
 ```java
 public class SecurityConfiguration {
@@ -85,85 +85,83 @@ public class SecurityConfiguration {
 
 ---
 
-## 🎯 Exemplos de Uso da API
+## 🎯 API Usage Examples
 
-### 🔹 Criar um novo usuário
+### 🔹 Create a new user
 ```http
 POST /api/usuarios
 ```
 ```json
 {
-  "nome": "João Silva",
-  "email": "joao@email.com",
+  "nome": "John Doe",
+  "email": "john@email.com",
   "senha": "123456"
 }
 ```
 
-### 🔹 Listar vídeos
+### 🔹 List videos
 ```http
 GET /api/videos
 ```
 
-### 🔹 Favoritar um vídeo
+### 🔹 Favorite a video
 ```http
 POST /api/usuarios/{id}/favoritar/{videoId}
 ```
 
-### 🔹 Adicionar um comentário
+### 🔹 Add a comment
 ```http
 POST /api/videos/{videoId}/comentarios
 ```
 ```json
 {
   "usuarioId": 1,
-  "texto": "Ótimo vídeo! Muito informativo."
+  "texto": "Great video! Very informative."
 }
 ```
 
 ---
 
-## 💻 Tecnologias Utilizadas
+## 💻 Technologies Used
 
 - **Java**
 - **Spring Boot**
 - **Spring Security + JWT**
 - **Hibernate + JPA**
 - **MySQL**
-- **Swagger para documentação da API**
+- **Swagger for API documentation**
 
 ---
 
-## 📜 Como Rodar o Projeto
+## 📜 How to Run the Project
 
-1️⃣ **Clone o repositório**:
+1️⃣ **Clone the repository**:
 ```sh
 git clone https://github.com/MigueldsBatista/streaming_app.git
 cd rea4e
 ```
 
-2️⃣ **Configure o banco de dados** (MySQL no `application.properties`):
+2️⃣ **Configure the database** (MySQL in `application.properties`):
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:3306/seu_banco
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+spring.datasource.url=jdbc:postgresql://localhost:3306/your_database
+spring.datasource.username=your_user
+spring.datasource.password=your_password
 ```
 
-3️⃣ **Compile e rode a aplicação**:
+3️⃣ **Build and run the application**:
 ```sh
 mvn spring-boot:run
 ```
 
-4️⃣ **Acesse a API no navegador**:
+4️⃣ **Access the API in your browser**:
 ```
 http://localhost:8080/swagger-ui.html
 ```
 
 ---
 
-## 📌 Contribuição
+## 📌 Contribution
 
-Quer contribuir? Sinta-se à vontade para abrir issues ou enviar pull requests! 🚀
+Want to contribute? Feel free to open issues or submit pull requests! 🚀
 
 ---
-
-
